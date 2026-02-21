@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body { margin: 0; background: #87CEEB; overflow: hidden; touch-action: none; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="g"></canvas>
+    <script>
+        const c = document.getElementById('g'), x = c.getContext('2d');
+        let h, w, bird, pipes, score, frame;
+
+        function init() {
+            h = c.height = window.innerHeight;
+            w = c.width = window.innerWidth;
+            bird = { y: h/2, v: 0, g: 0.5 };
+            pipes = []; score = 0; frame = 0;
+        }
+
+        function draw() {
+            x.fillStyle = '#87CEEB'; x.fillRect(0,0,w,h);
+            bird.v += bird.g; bird.y += bird.v;
+            x.fillStyle = '#0f0'; x.fillRect(50, bird.y, 30, 30);
+
+            if(frame++ % 90 == 0) pipes.push({x:w, y:Math.random()*(h-200)+50});
+            pipes.forEach((p,i) => {
+                p.x -= 3;
+                x.fillStyle = 'red';
+                x.fillRect(p.x, 0, 50, p.y);
+                x.fillRect(p.x, p.y+150, 50, h);
+                if(p.x < 80 && p.x > 20 && (bird.y < p.y || bird.y > p.y+120)) init();
+                if(p.x < -50) { pipes.splice(i,1); score++; }
+            });
+
+            if(bird.y > h || bird.y < 0) init();
+            x.fillStyle = 'white'; x.font = '20px Arial';
+            x.fillText('Score: ' + score, 20, 30);
+            requestAnimationFrame(draw);
+        }
+
+        // Ye line touch ko sahi karegi
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Screen zoom nahi hogi
+            bird.v = -8; // Bird jump karegi
+        }, {passive: false});
+
+        init(); draw();
+    </script>
+</body>
+</html>
