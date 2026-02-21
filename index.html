@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flappy Character Game</title>
+    <style>
+        body { text-align: center; margin: 0; background: #222; color: white; font-family: sans-serif; }
+        canvas { background: #87CEEB; display: block; margin: 20px auto; border: 4px solid #fff; max-width: 95%; }
+    </style>
+</head>
+<body>
+    <h2>Mera Flappy Game</h2>
+    <p>Tap Screen ya Space Dabayein</p>
+    <canvas id="game" width="400" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        let bird = { x: 50, y: 150, w: 50, h: 40, g: 0.6, lift: -10, v: 0 };
+        let pipes = []; let score = 0; let frame = 0; let over = false;
+
+        // APNI IMAGE KA NAAM YAHAN LIKHEIN
+        const img = new Image();
+        img.src = 'character.png'; 
+
+        function loop() {
+            if(!over) {
+                bird.v += bird.g; bird.y += bird.v;
+                if(frame++ % 90 === 0) {
+                    let h = Math.random() * (canvas.height - 200) + 50;
+                    pipes.push({ x: canvas.width, t: h, b: canvas.height - h - 150 });
+                }
+                pipes.forEach((p, i) => {
+                    p.x -= 3;
+                    if(bird.x+bird.w > p.x && bird.x < p.x+50 && (bird.y < p.t || bird.y+bird.h > canvas.height-p.b)) over = true;
+                    if(p.x === 50) score++;
+                });
+                pipes = pipes.filter(p => p.x > -50);
+                if(bird.y > canvas.height || bird.y < 0) over = true;
+            }
+            draw(); requestAnimationFrame(loop);
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,400,500);
+            if(img.complete) ctx.drawImage(img, bird.x, bird.y, bird.w, bird.h);
+            else { ctx.fillStyle = "red"; ctx.fillRect(bird.x, bird.y, bird.w, bird.h); }
+            ctx.fillStyle = "green";
+            pipes.forEach(p => { ctx.fillRect(p.x, 0, 50, p.t); ctx.fillRect(p.x, 500-p.b, 50, p.b); });
+            ctx.fillStyle = "white"; ctx.font = "20px Arial"; ctx.fillText("Score: "+score, 20, 30);
+            if(over) ctx.fillText("GAME OVER! Tap to Restart", 80, 250);
+        }
+
+        const jump = () => { if(over) location.reload(); else bird.v = bird.lift; };
+        window.addEventListener('keydown', e => { if(e.code==='Space') jump(); });
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); });
+        canvas.addEventListener('mousedown', jump);
+        loop();
+    </script>
+</body>
+</html>
