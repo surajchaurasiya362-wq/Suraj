@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; background:#222; overflow:hidden; touch-action:none;" onclick="g*=-1">
+  <canvas id="c"></canvas>
+  <script>
+    const c=document.getElementById('c'), x=c.getContext('2d');
+    let h=window.innerHeight, w=window.innerWidth, py=h/2, v=0, g=0.5, s=0, obs=[];
+    c.height=h; c.width=w;
+    function draw() {
+      v+=g; py+=v;
+      if(py<0 || py>h-30) { alert("Game Over! Score: "+Math.floor(s)); location.reload(); }
+      x.clearRect(0,0,w,h);
+      x.fillStyle='#0f0'; x.fillRect(50,py,30,30);
+      if(Math.random()<0.02) obs.push({x:w, y:Math.random()>0.5?0:h-50});
+      obs.forEach((o,i)=>{ o.x-=5; x.fillStyle='red'; x.fillRect(o.x,o.y,40,50);
+        if(o.x<80 && o.x>20 && py<o.y+50 && py+30>o.y) location.reload();
+        if(o.x<-40) obs.splice(i,1);
+      });
+      s+=0.1; x.fillStyle='white'; x.font="20px Arial"; x.fillText("Score: "+Math.floor(s),20,30);
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
